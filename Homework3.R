@@ -1,5 +1,5 @@
 # Homework 3 - Linear Regression
-# name(s):
+# name(s): Benedict W. & Catalina L.
 
 
 # load all packages here:
