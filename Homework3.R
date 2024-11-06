@@ -12,10 +12,19 @@ library(car)
 
 
 # 1) Load the data: associations.csv and inspect the data frame - how many data points and variables are there? What types of variables are there?
-
+association <- read_csv(here("associations.csv")) %>% 
+  mutate(SYLL = as.factor(SYLL)) %>% 
+  mutate(LETTERS = as.factor(LETTERS))
+glimpse(association)
 
 
 # 2.a) Explore all the variables in your data set: provide summary statistics (measures of central tendency) and plot each one of them (except WORD). Describe what you see in the plots and the summary statistics. Is there anything striking? Are some of the variables very skewed and need to be transformed? If so, try some of the transformations we learned about and see if that helps. Only use them if they really improve things a lot.
+summary(association$SYLL)
+plot(association$SYLL)
+#reasons
+
+summary(association$LETTERS)
+plot(association$LETTERS)
 
 
 # 2.b) Plot the dependent variable (ASSOC) with each of the predictors (all the other variables) and give a brief explanation of what you see.
