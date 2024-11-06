@@ -3,6 +3,12 @@
 
 
 # load all packages here:
+library(tidyverse)
+library(here)
+library(effects)
+library(rgl)
+library(car)
+
 
 
 # 1) Load the data: associations.csv and inspect the data frame - how many data points and variables are there? What types of variables are there?
