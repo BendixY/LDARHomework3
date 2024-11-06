@@ -48,7 +48,6 @@ LETT_qq
 #The bar plot supports this finding and shows an abvious peak at a lettercount of 6, with the amount tapering off to both sides.
 #This also makes it look vaguely normal, but the QQ test would somewhat disagree. We think, for the same reason as stated above, that it wasn't useful to transform it.
 
-
 summary(association$IMAGE)
 plot(association$IMAGE)
 
@@ -111,11 +110,58 @@ ASSOC_qq
 
 # 2.b) Plot the dependent variable (ASSOC) with each of the predictors (all the other variables) and give a brief explanation of what you see.
 
+ASSOC_SYLL_plot <- ggplot(data = association, aes(x = ASSOC, y = SYLL)) +
+  geom_point()
+ASSOC_SYLL_plot
+#points seem to be more frequent 
+ASSOC_LETTERS_plot <- ggplot(data = association, aes(x = ASSOC, y = LETTERS)) +
+  geom_point()
+ASSOC_LETTERS_plot
+#mh yes quite
+
+ASSOC_IMG_plot <- ggplot(data = association, aes(x = ASSOC, y = IMAGE)) +
+  geom_point()
+ASSOC_IMG_plot
+#he higher the image score, the higher the assoc score, on average
+
+ASSOC_CONCR_plot <- ggplot(data = association, aes(x = ASSOC, y = CONCR)) +
+  geom_point()
+ASSOC_CONCR_plot
+#words with very low assoc score tend to have low concr score as well. average assoc score can hav either very high or low concr scores (and some medium concr scores), high assoc score words correlate with high concr scores
 
 
 # 3.a) Make a linear model with ASSOC as the dependent variable and all other variables as predictors. Start with the maximal model including all interactions and perform manual model selection until you arrive at the final model.
 # For each model, display the summary and briefly explain what it means.
 
+max_model <- lm(ASSOC ~ SYLL*LETTERS*logIMG*sqrtCONCR,
+                data = association)
+summary(max_model)
+#The expected value of ASSOC given the baseline of the other variables is 21.6.
+#The adjusted R^2 is significantly lower than the multiple R^2, which would indicate overfitting. This makes sense given that we use the max model
+
+drop1(max_model,
+      test = "F")
+#The Pr(>F) of the 4 way interaction is quite high, which would indicate that it is not contributing much to the model
+#So we limit our next model to only 3 way interactions
+model02 <- lm(ASSOC ~ (SYLL+LETTERS+logIMG+sqrtCONCR)^3, data = association)
+summary(model02)
+#Once again the mutliple R^2 and adjusted R^2 are quite far apart and only the intercept is indicated with some amount of significance, so we can keep dropping interactions
+drop1(model02, test = "F")
+#The Syll:logIMG:sqrtCONCR interaction has the highest PR(>F), meaning it's the next one we drop like its hot
+model03 <- update(model02, ~. -SYLL:logIMG:sqrtCONCR)
+summary(model03)
+#our R^2 values are slowly trending closer. But in terms of significance, there still isnt anything of high interest to report. so we go on droppin
+drop1(model03, test = "F")
+#This time it's the interaction between SYLL, LETTERS and sqrtCONCR that we will drop
+model04 <- update(model03, ~. -SYLL:LETTERS:sqrtCONCR)
+summary(model04)
+#This didnt really improve anything. we keep droppin, bois
+drop1(model04, test = "F")
+#all three interactions that pop up are insignifiacnt, so we drop the highest again
+model05 <- update(model04, ~. -SYLL:sqrtCONCR)
+summary(model05)
+#uh-oh the r^2 values seem to be drifting apart again.though the summary now indicates some signifiacne when it comes to the interaction with Letters. We keep dropping1
+drop1(model05, test = "F")
 
 # 3.b) Plot the effects of the final model and give a brief summary of what the plot shows.
 
