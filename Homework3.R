@@ -197,7 +197,12 @@ drop1(model10, test = "F")
 model11 <- update(model10, ~. -LETTERS:logIMG)
 summary(model11)
 #some new significance when considering letters now. but still all very low, so we gogogo again
-
+drop1(model11, test = "F")
+#we drop logIMG:sqrt:CONCR. this is a bit surprising, as this is where we thought could have been a decently significant interaction ¯\_(ツ)_/¯
+model12 <- update(model11, ~. -logIMG:sqrtCONCR)
+summary(model12)
+#R2 are getting cloooser. we have high signifiance in the intercept ans with logIMG
+#
 # 3.b) Plot the effects of the final model and give a brief summary of what the plot shows.
 
 
