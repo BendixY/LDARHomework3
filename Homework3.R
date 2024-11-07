@@ -128,7 +128,7 @@ ASSOC_LETTERS_plot
 ASSOC_IMG_plot <- ggplot(data = association, aes(x = ASSOC, y = IMAGE)) +
   geom_point()
 ASSOC_IMG_plot
-#he higher the image score, the higher the assoc score, on average
+#the higher the image score, the higher the assoc score, on average
 
 ASSOC_CONCR_plot <- ggplot(data = association, aes(x = ASSOC, y = CONCR)) +
   geom_point()
@@ -168,6 +168,35 @@ model05 <- update(model04, ~. -SYLL:sqrtCONCR)
 summary(model05)
 #uh-oh the r^2 values seem to be drifting apart again.though the summary now indicates some signifiacne when it comes to the interaction with Letters. We keep dropping1
 drop1(model05, test = "F")
+#we now drop the interaction between SYLL:LETTERS:logIMG
+model06 <- update(model05, ~. -SYLL:LETTERS:logIMG)
+summary(model06)
+#the R squared values are converging a bit, but none of the coefficients seem significant, so we drop again
+drop1(model06, test = "F")
+#we drop the interaction between Syll and logIMG now. The SYLL:LETTERS interaction also has a pretty high Pr(>F) and can hopefully be dropped next
+model07 <- update(model06, ~. -SYLL:logIMG)
+summary(model07)
+#again the R squared valeus are trending closer, but there still isnt any significance within the results, so we drop drop drop
+drop1(model07, test = "F")
+#SYLL:LETTERS time to go. That words with more letters tend to have more syllables is straightforward anyways, so having a signifiacnt interaction there would have been very confusing
+model08 <- update(model07, ~. -SYLL:LETTERS)
+summary(model08)
+#no big impact to the R-squared values, still no significance in any coefficients
+drop1(model08, test = "F")
+#SYLL be gone
+model09 <- update(model08, ~. -SYLL)
+summary(model09)
+#r2 moving closer, we now have 2 coeficcients that R rates with a . in significance. not high, but we might be gettign somewhere now...
+drop1(model09, test = "F")
+#this 3 way interaction has one of the lowest Pr(>F) we dropped yet, but we do what we gotta do
+model10 <- update(model09, ~. -LETTERS:logIMG:sqrtCONCR)
+summary(model10)
+#wow now we have a * at the intercept but not really anywhere else. So we keep going
+drop1(model10, test = "F")
+#LETTERS:logIMG has incredibly high Pr(>F), so away it goes
+model11 <- update(model10, ~. -LETTERS:logIMG)
+summary(model11)
+#some new significance when considering letters now. but still all very low, so we gogogo again
 
 # 3.b) Plot the effects of the final model and give a brief summary of what the plot shows.
 
