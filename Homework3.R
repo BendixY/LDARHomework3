@@ -16,6 +16,12 @@ association <- read_csv(here("associations.csv")) #%>%
   #mutate(SYLL = as.factor(SYLL)) %>% 
   #mutate(LETTERS = as.factor(LETTERS))
 glimpse(association)
+#There are 101 data points for 6 different variables.
+#One column, "word", is saved as characters, while all others are represented as doubles.
+#We initially tried to mutate the Syllable count and Letter count into factors to prevent us from treating them like continuous numbers like the ones in the columns for IMAGE, CONCR and ASSOC,
+#but reverted that, as it made the initial analysis unecessarily complicated
+#we made sure to keep in mind that these two columns should only ever contain integers, so results, like means or later model analysis, which refer to them with decimal points were treated with a grain of salt.
+
 
 
 # 2.a) Explore all the variables in your data set: provide summary statistics (measures of central tendency) and plot each one of them (except WORD). Describe what you see in the plots and the summary statistics. Is there anything striking? Are some of the variables very skewed and need to be transformed? If so, try some of the transformations we learned about and see if that helps. Only use them if they really improve things a lot.
@@ -45,7 +51,7 @@ LETT_qq <- ggplot(association, aes(sample = LETTERS)) +
   labs(x = "Theoretical Quantiles", y = "Sample Quantiles")
 LETT_qq
 #The summary states the mean letter count of words in the data is 6, with the mean being only slightly higher at 4.65. 
-#The bar plot supports this finding and shows an abvious peak at a lettercount of 6, with the amount tapering off to both sides.
+#The bar plot supports this finding and shows an obvious peak at a letter count of 6, with the amount tapering off to both sides.
 #This also makes it look vaguely normal, but the QQ test would somewhat disagree. We think, for the same reason as stated above, that it wasn't useful to transform it.
 
 summary(association$IMAGE)
