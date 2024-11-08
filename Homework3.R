@@ -296,3 +296,6 @@ RESI_histo <- ggplot(association, aes(x = residuals(model16))) +
        y = "Frequency")
 RESI_histo
 #This obviously isnt perfectly normal, but given our inital data, it's relatively close
+
+shapiro.test(residuals(model16))
+#this test can also be used to test for normality. our resulting p-value of 0.2272 is higher than 0.05, which would again suggest that the residuals do not deviate significantly from a normal distribution
