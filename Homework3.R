@@ -271,9 +271,9 @@ association$residuals <- residuals(model16)
 
 ggplot(association, aes(x = logIMG, y = residuals)) +
   geom_point(color = "purple") + 
-  geom_hline(yintercept = 0, # Add horizontal line at y = 0
+  geom_hline(yintercept = 0, #add horizontal line at y = 0
              color = "black",
-             linetype = "dashed") +
+             linetype = "dashed") + #for increased visibility
   labs(title = "Residuals of model16",
        x = "logIMG",
        y = "Residuals")
