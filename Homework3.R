@@ -30,7 +30,8 @@ SYLL_stat <- ggplot(association,
                     aes(x = SYLL)) +
   geom_bar()
 SYLL_stat
-SYLL_qq <- ggplot(association, aes(sample = SYLL)) +
+SYLL_qq <- ggplot(association,
+                  aes(sample = SYLL)) +
   stat_qq() +
   stat_qq_line() +
   labs(x = "Theoretical Quantiles", y = "Sample Quantiles")
@@ -45,7 +46,8 @@ LETT_stat <- ggplot(association,
                     aes(x = LETTERS)) +
   geom_bar()
 LETT_stat
-LETT_qq <- ggplot(association, aes(sample = LETTERS)) +
+LETT_qq <- ggplot(association,
+                  aes(sample = LETTERS)) +
   stat_qq() +
   stat_qq_line() +
   labs(x = "Theoretical Quantiles", y = "Sample Quantiles")
@@ -68,10 +70,12 @@ association <- association %>%
 hist(association$logIMG)
 #already looks a lil better
 #we now test for normalityness
-IMAGE_qq <- ggplot(association, aes(sample = logIMG)) +
+IMAGE_qq <- ggplot(association,
+                   aes(sample = logIMG)) +
   stat_qq() +
   stat_qq_line() +
-  labs(x = "Theoretical Quantiles", y = "Sample Quantiles")
+  labs(x = "Theoretical Quantiles",
+       y = "Sample Quantiles")
 IMAGE_qq
 #this looks to be reasonably normal, though the higher values definitely taper off
 #reason3
@@ -91,10 +95,12 @@ association <- association %>%
 hist(association$sqrtCONCR)
 #this looks very slightly better/more normal
 #lets test this thooooooooo
-CONCR_qq <- ggplot(association, aes(sample = sqrtCONCR)) +
+CONCR_qq <- ggplot(association,
+                   aes(sample = sqrtCONCR)) +
   stat_qq() +
   stat_qq_line() +
-  labs(x = "Theoretical Quantiles", y = "Sample Quantiles")
+  labs(x = "Theoretical Quantiles",
+       y = "Sample Quantiles")
 CONCR_qq
 
 #reason4
@@ -107,10 +113,12 @@ ASSOC_stat <- ggplot(association,
   geom_histogram(binwidth = 0.1)
 ASSOC_stat
 #this is the only plot with continuous values that looked inherently "normal"
-ASSOC_qq <- ggplot(association, aes(sample = ASSOC)) +
+ASSOC_qq <- ggplot(association,
+                   aes(sample = ASSOC)) +
   stat_qq() +
   stat_qq_line() +
-  labs(x = "Theoretical Quantiles", y = "Sample Quantiles")
+  labs(x = "Theoretical Quantiles",
+       y = "Sample Quantiles")
 ASSOC_qq
 #this test confirms that the data truly is quite normal
 
@@ -201,11 +209,11 @@ drop1(model11, test = "F")
 #we drop logIMG:sqrt:CONCR. this is a bit surprising, as this is where we thought could have been a decently significant interaction ¯\_(ツ)_/¯
 model12 <- update(model11, ~. -logIMG:sqrtCONCR)
 summary(model12)
-#R2 are getting cloooser. we have high signifiance in the intercept ans with logIMG
-#I'll see what the drop1 changes.
+#R2 are getting cloooser. we have high significance in the intercept ans with logIMG
+#We'll see what the drop1 changes.
 drop1(model12, test = "F")
 #There's no visible significance between the two values. We also don't get an intercept here.
-#Howecer, the Pr(>F) value is definetel lower!
+#Howecer, the Pr(>F) value is definetely lower!
 model13 <- update(model12, ~. -LETTERS:sqrtCONCR)
 summary(model13)
 #Same observation here as above, there's significance between the intercept and logIMG.
@@ -217,7 +225,7 @@ model14 <- update(model12, ~. -sqrtCONCR)
 summary(model14)
 
 drop1(model14, test = "F")
-#same result here, significange between the intercept and logIMG.
+#same result here, significance between the intercept and logIMG.
 model15 <- update(model13, ~. -sqrtCONCR)
 summary(model15)
 #LETTERS is a lot smaller but oh well, not significant..
@@ -226,15 +234,65 @@ drop1(model15, test = "F")
 model16 <- update(model15, ~. -LETTERS)
 summary(model16)
 
-drop1(model16, test = "F")
-#Tbh I don't really know what I'm doing but I got rid of all "irrelevant" values! 
-#Now there's only significance between the intercept and loIMG.
-#Pr(>F) of logIMG rose to a value of 4.575.
+#We reduced the model down to ASSOC ~ logIMG
+#The Intercept at 2.6918 means that is the expected value for ASSOC when logIMG is 0.
+#For each unit increase in logIMG, the ASSOC value is expected to rise by 5.0149 units.
+#The R2 values are very close to each other, implying that it's unlikely there's any overfitting.
+
+
 
 
 # 3.b) Plot the effects of the final model and give a brief summary of what the plot shows.
 
+association$predicted_ASSOC <- predict(model16)
+#this adds the predictions for datapoints into our dataset
+EffectPlot <- ggplot(association,
+                     aes(x = logIMG,
+                         y = ASSOC)) +
+  geom_point(color = "blue") +
+  geom_line(aes(y = predicted_ASSOC),
+            color = "red",
+            size = 1) + #Here we add the predictions as a line to help the visualisation
+  labs(title = "Effect of logIMG on ASSOC",
+       x = "logIMG",
+       y = "ASSOC")
+EffectPlot
+#The plot shows us the expected rise of ASSOC for each unit of logIMG
+#As no data points go below ~0.26logIMG, we do not get to see the intercept.
+#The same applies for values of logIMG > 0.84
+#In the range of 0.6<logIMG<0.85 the data points veer off the prediction quite strongly in both directions, but the upwards trend is still apparent.
+
+
 
 # 3.c) Plot the residuals of the final model. Is there a discernible pattern or not? Are they (more or less) normally distributed?
 
+association$residuals <- residuals(model16)
+#with this we add the residuals back into our data
 
+ggplot(association, aes(x = logIMG, y = residuals)) +
+  geom_point(color = "purple") + 
+  geom_hline(yintercept = 0, # Add horizontal line at y = 0
+             color = "black",
+             linetype = "dashed") +
+  labs(title = "Residuals of model16",
+       x = "logIMG",
+       y = "Residuals")
+#The residual plot shows clear pattern, though it is bunched up a bit more in the higher values, which corresponds to our analysis of the QQ test of logIMG above.
+#we check again for normality by making a QQ test of the residuals themselves
+
+RESI_qq <- ggplot(association,
+                  aes(sample = residuals)) +
+  stat_qq() +
+  stat_qq_line() +
+  labs(x = "Theoretical Quantiles", y = "Sample Quantiles")
+RESI_qq
+#the values align somewhat neatly with the theoretical quantiles
+
+#an additonal histogram of the residuals might also help
+RESI_histo <- ggplot(association, aes(x = residuals(model16))) +
+  geom_histogram(binwidth = 0.2) +
+  labs(title = "Histogram of Residuals",
+       x = "Residuals",
+       y = "Frequency")
+RESI_histo
+#This obviously isnt perfectly normal, but given our inital data, it's relatively close
