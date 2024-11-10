@@ -14,12 +14,12 @@ library(car)
 # 1) Load the data: associations.csv and inspect the data frame - how many data points and variables are there? What types of variables are there?
 association <- read_csv(here("associations.csv")) #%>% 
   #mutate(SYLL = as.factor(SYLL)) %>% 
-  #mutate(LETTERS = as.factor(LETTERS))
+  #mutate(LETTERS = as.factor(LETTERS)) 
 glimpse(association)
 #There are 101 data points for 6 different variables.
 #One column, "word", is saved as characters, while all others are represented as doubles.
 #We initially tried to mutate the Syllable count and Letter count into factors to prevent us from treating them like continuous numbers like the ones in the columns for IMAGE, CONCR and ASSOC,
-#but reverted that, as it made the initial analysis unecessarily complicated
+#but reverted that, as it made the initial analysis unnecessarily complicated
 #we made sure to keep in mind that these two columns should only ever contain integers, so results, like means or later model analysis, which refer to them with decimal points were treated with a grain of salt.
 
 
@@ -37,8 +37,8 @@ SYLL_qq <- ggplot(association,
   labs(x = "Theoretical Quantiles", y = "Sample Quantiles")
 SYLL_qq
 #The mean syllable count of words in the dataset is 2,158. Together with the plot it becomes clear that most words in the data have 2 syllables, but tend to have slightly more.
-#That the 3rd quartile is at 3 syllables indicates that there are very few words with 4 or more syllables in the dataset, which again is supported by the visualisation.
-#The QQ plot isn't very telling not all to useful here, as we only have integer values. We could have transformed this column, but decided against it as it does not seem useful to turn amount of Syllables (and letters for that matter) into continuous values.
+#That the 3rd quartile is at 3 syllables indicates that there are very few words with 4 or more syllables in the dataset, which again is supported by the visualization. 
+#The QQ plot isn't very telling and not all to useful here, as we only have integer values. We could have transformed this column, but decided against it as it does not seem useful to turn amount of Syllables (and letters for that matter) into continuous values.
 
 
 summary(association$LETTERS)
@@ -64,12 +64,12 @@ IMAGE_stat <- ggplot(association,
   geom_histogram(binwidth = 0.1)
 IMAGE_stat
 hist(association$IMAGE)
-#This doesnt seem very normal, so lets apply a log to the IMAGE column
+#This doesn't seem very normal, so we applied a log to the IMAGE column
 association <- association %>% 
   mutate(logIMG = log10(IMAGE))
 hist(association$logIMG)
-#already looks a lil better
-#we now test for normalityness
+#already looks a better
+#we now test for normality
 IMAGE_qq <- ggplot(association,
                    aes(sample = logIMG)) +
   stat_qq() +
@@ -78,6 +78,7 @@ IMAGE_qq <- ggplot(association,
        y = "Sample Quantiles")
 IMAGE_qq
 #this looks to be reasonably normal, though the higher values definitely taper off
+
 #reason3
 
 summary(association$CONCR)
@@ -87,14 +88,14 @@ CONCR_stat <- ggplot(association,
                     aes(x = CONCR)) +
   geom_histogram(binwidth = 0.1)
 CONCR_stat
-#Here we tried a log transformation, but that didnt seem to improve it, so we try something else idk what tho
-#lessss try square root transformation
+#Here we tried a log transformation, but that didn't seem to improve it, so we tried something else.
+#trying the square root transformation
 
 association <- association %>% 
   mutate(sqrtCONCR = sqrt(CONCR))
 hist(association$sqrtCONCR)
-#this looks very slightly better/more normal
-#lets test this thooooooooo
+#this looks more normal
+#So we tested it.
 CONCR_qq <- ggplot(association,
                    aes(sample = sqrtCONCR)) +
   stat_qq() +
@@ -103,16 +104,16 @@ CONCR_qq <- ggplot(association,
        y = "Sample Quantiles")
 CONCR_qq
 
-#reason4
-
+#The graph below shows that the 2nd and 3rd quartiles are both positiv which is also true for the theoretical quartiles.
+#same as above the data is not very normal.
 summary(association$ASSOC)
 hist(association$ASSOC)
-
+#In the histogram the association around 5 to 6 has the highest frequency. 
 ASSOC_stat <- ggplot(association,
                     aes(x = ASSOC)) +
   geom_histogram(binwidth = 0.1)
 ASSOC_stat
-#this is the only plot with continuous values that looked inherently "normal"
+#this is the only plot with continuous values that looked inherently "normal" and well readable.
 ASSOC_qq <- ggplot(association,
                    aes(sample = ASSOC)) +
   stat_qq() +
@@ -120,28 +121,29 @@ ASSOC_qq <- ggplot(association,
   labs(x = "Theoretical Quantiles",
        y = "Sample Quantiles")
 ASSOC_qq
-#this test confirms that the data truly is quite normal
+#this test confirms that the data truly is quite normal.
 
 # 2.b) Plot the dependent variable (ASSOC) with each of the predictors (all the other variables) and give a brief explanation of what you see.
 
 ASSOC_SYLL_plot <- ggplot(data = association, aes(x = ASSOC, y = SYLL)) +
   geom_point()
 ASSOC_SYLL_plot
-#points seem to be more frequent 
+#The points seem to be more frequent  around the variable 6. 
+#As aready discussed, words with more than 3 syllables are less likely to often be associated with something.
 ASSOC_LETTERS_plot <- ggplot(data = association, aes(x = ASSOC, y = LETTERS)) +
   geom_point()
 ASSOC_LETTERS_plot
-#mh yes quite
+#The distrubition of the variable letters is similar to the one with syllables.
 
 ASSOC_IMG_plot <- ggplot(data = association, aes(x = ASSOC, y = IMAGE)) +
   geom_point()
 ASSOC_IMG_plot
-#the higher the image score, the higher the assoc score, on average
+#the higher the image score, the higher the assoc score, on average.
 
 ASSOC_CONCR_plot <- ggplot(data = association, aes(x = ASSOC, y = CONCR)) +
   geom_point()
 ASSOC_CONCR_plot
-#words with very low assoc score tend to have low concr score as well. average assoc score can hav either very high or low concr scores (and some medium concr scores), high assoc score words correlate with high concr scores
+#words with very low assoc score tend to have low concr score as well. Average assoc score can have either very high or low concr scores (and some medium concr scores), high assoc score words correlate with high concr scores.
 
 
 # 3.a) Make a linear model with ASSOC as the dependent variable and all other variables as predictors. Start with the maximal model including all interactions and perform manual model selection until you arrive at the final model.
@@ -151,12 +153,12 @@ max_model <- lm(ASSOC ~ SYLL*LETTERS*logIMG*sqrtCONCR,
                 data = association)
 summary(max_model)
 #The expected value of ASSOC given the baseline of the other variables is 21.6.
-#The adjusted R^2 is significantly lower than the multiple R^2, which would indicate overfitting. This makes sense given that we use the max model
+#The adjusted R^2 is significantly lower than the multiple R^2, which would indicate overfitting. This makes sense given that we use the max model.
 
 drop1(max_model,
       test = "F")
-#The Pr(>F) of the 4 way interaction is quite high, which would indicate that it is not contributing much to the model
-#So we limit our next model to only 3 way interactions
+#The Pr(>F) of the 4 way interaction is quite high, which would indicate that it is not contributing much to the model.
+#We limit our next model to only 3 way interactions.
 model02 <- lm(ASSOC ~ (SYLL+LETTERS+logIMG+sqrtCONCR)^3, data = association)
 summary(model02)
 #Once again the mutliple R^2 and adjusted R^2 are quite far apart and only the intercept is indicated with some amount of significance, so we can keep dropping interactions
