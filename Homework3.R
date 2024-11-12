@@ -16,7 +16,7 @@ association <- read_csv(here("associations.csv")) #%>%
 ## 1) Load the data: associations.csv and inspect the data frame
 association <- read_csv(here("associations.csv")) 
 
-# Ww attempted to mutate SYLL and LETTERS to factors to treat them as categorical variables, 
+# We attempted to mutate SYLL and LETTERS to factors to treat them as categorical variables, 
 # since we only expect integer values, not continuous data. However, we reverted this 
 # as it complicated initial analyses. We’ll keep their non-numeric nature in mind later on.
 #mutate(SYLL = as.factor(SYLL)) %>% 
