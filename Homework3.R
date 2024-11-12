@@ -57,7 +57,7 @@ LETT_qq
 #This also makes it look vaguely normal, but the QQ test would somewhat disagree. We think, for the same reason as stated above, that it wasn't useful to transform it.
 
 summary(association$IMAGE)
-plot(association$IMAGE)
+plot(association$IMAGE) 
 
 IMAGE_stat <- ggplot(association,
                     aes(x = IMAGE)) +
