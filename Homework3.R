@@ -13,8 +13,14 @@ library(car)
 
 # 1) Load the data: associations.csv and inspect the data frame - how many data points and variables are there? What types of variables are there?
 association <- read_csv(here("associations.csv")) #%>% 
-  #mutate(SYLL = as.factor(SYLL)) %>% 
-  #mutate(LETTERS = as.factor(LETTERS)) 
+## 1) Load the data: associations.csv and inspect the data frame
+association <- read_csv(here("associations.csv")) 
+
+# Ww attempted to mutate SYLL and LETTERS to factors to treat them as categorical variables, 
+# since we only expect integer values, not continuous data. However, we reverted this 
+# as it complicated initial analyses. We’ll keep their non-numeric nature in mind later on.
+#mutate(SYLL = as.factor(SYLL)) %>% 
+#mutate(LETTERS = as.factor(LETTERS)) 
 glimpse(association)
 #There are 101 data points for 6 different variables.
 #One column, "word", is saved as characters, while all others are represented as doubles.
@@ -30,6 +36,7 @@ SYLL_stat <- ggplot(association,
                     aes(x = SYLL)) +
   geom_bar()
 SYLL_stat
+# SYLL's QQ plot shows expected deviations due to integer data
 SYLL_qq <- ggplot(association,
                   aes(sample = SYLL)) +
   stat_qq() +
@@ -46,6 +53,8 @@ LETT_stat <- ggplot(association,
                     aes(x = LETTERS)) +
   geom_bar()
 LETT_stat
+# LETTERS QQ plot shows deviation from normal; transformation not attempted 
+# due to integer values and limited improvement expected.
 LETT_qq <- ggplot(association,
                   aes(sample = LETTERS)) +
   stat_qq() +
@@ -60,7 +69,7 @@ summary(association$IMAGE)
 plot(association$IMAGE) 
 
 IMAGE_stat <- ggplot(association,
-                    aes(x = IMAGE)) +
+                     aes(x = IMAGE)) +
   geom_histogram(binwidth = 0.1)
 IMAGE_stat
 hist(association$IMAGE)
@@ -79,13 +88,13 @@ IMAGE_qq <- ggplot(association,
 IMAGE_qq
 #this looks to be reasonably normal, though the higher values definitely taper off
 
-#reason3
+
 
 summary(association$CONCR)
 hist(association$CONCR)
 
 CONCR_stat <- ggplot(association,
-                    aes(x = CONCR)) +
+                     aes(x = CONCR)) +
   geom_histogram(binwidth = 0.1)
 CONCR_stat
 #Here we tried a log transformation, but that didn't seem to improve it, so we tried something else.
@@ -110,7 +119,7 @@ summary(association$ASSOC)
 hist(association$ASSOC)
 #In the histogram the association around 5 to 6 has the highest frequency. 
 ASSOC_stat <- ggplot(association,
-                    aes(x = ASSOC)) +
+                     aes(x = ASSOC)) +
   geom_histogram(binwidth = 0.1)
 ASSOC_stat
 #this is the only plot with continuous values that looked inherently "normal" and well readable.
@@ -122,6 +131,9 @@ ASSOC_qq <- ggplot(association,
        y = "Sample Quantiles")
 ASSOC_qq
 #this test confirms that the data truly is quite normal.
+
+
+
 
 # 2.b) Plot the dependent variable (ASSOC) with each of the predictors (all the other variables) and give a brief explanation of what you see.
 
@@ -144,6 +156,8 @@ ASSOC_CONCR_plot <- ggplot(data = association, aes(x = ASSOC, y = CONCR)) +
   geom_point()
 ASSOC_CONCR_plot
 #words with very low assoc score tend to have low concr score as well. Average assoc score can have either very high or low concr scores (and some medium concr scores), high assoc score words correlate with high concr scores.
+
+
 
 
 # 3.a) Make a linear model with ASSOC as the dependent variable and all other variables as predictors. Start with the maximal model including all interactions and perform manual model selection until you arrive at the final model.
@@ -215,7 +229,7 @@ summary(model12)
 #We'll see what the drop1 changes.
 drop1(model12, test = "F")
 #There's no visible significance between the two values. We also don't get an intercept here.
-#Howecer, the Pr(>F) value is definetely lower!
+#However, the Pr(>F) value is definetely lower!
 model13 <- update(model12, ~. -LETTERS:sqrtCONCR)
 summary(model13)
 #Same observation here as above, there's significance between the intercept and logIMG.
@@ -230,7 +244,7 @@ drop1(model14, test = "F")
 #same result here, significance between the intercept and logIMG.
 model15 <- update(model13, ~. -sqrtCONCR)
 summary(model15)
-#LETTERS is a lot smaller but oh well, not significant..
+#LETTERS is a lot smaller but te value shows no significance.
 drop1(model15, test = "F")
 #There are stars behind logIMG again :D
 model16 <- update(model15, ~. -LETTERS)
@@ -263,6 +277,7 @@ EffectPlot
 #As no data points go below ~0.26logIMG, we do not get to see the intercept.
 #The same applies for values of logIMG > 0.84
 #In the range of 0.6<logIMG<0.85 the data points veer off the prediction quite strongly in both directions, but the upwards trend is still apparent.
+
 
 
 
